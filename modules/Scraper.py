@@ -2,8 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
-
-
 stock_data = 'resp.json'
 class Scraper:
 
