@@ -1,35 +1,60 @@
 import requests
 from bs4 import BeautifulSoup
-import html_to_json
+import json
+
 
 stock_data = 'resp.json'
 
 
 def Scrape():
-    url = "https://www.onefamily.com/help/fund-information/daily-prices/" 
+    url = "https://www.onefamily.com/help/fund-information/daily-prices/"
+    
     USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101"
     headers = {"user-agent": USER_AGENT}
+    
     resp = requests.get(url, headers=headers)
-   
-    if resp.status_code == 200:
-        page_soup = BeautifulSoup(resp.content, "html.parser")
-        return page_soup 
-    else:
-        print(f"failed status code: {resp.status_code}")
-        return None  
+    content = BeautifulSoup(resp.content, 'html.parser')
+
+
+    table = content.find('table', class_='tabbeddaily_prices')
+    stock_data_list = []
+
+
+    if table:
+        rows = table.find_all('tr')
+
+      
+        for row in rows[1:]:  
+            columns = row.find_all('td')
+            
+            if len(columns) >= 5:
+                fund_description = columns[0].get_text(strip=True)
+                bid_price = columns[1].get_text(strip=True)
+                offer_price = columns[2].get_text(strip=True)
+                percent_change = columns[3].get_text(strip=True)
+                last_updated = columns[4].get_text(strip=True)
+                
+                stock_data_list.append({
+                    "fund_description": fund_description,
+                    "bid_price": bid_price,
+                    "offer_price": offer_price,
+                    "percent_change": percent_change,
+                    "last_updated": last_updated
+                })
+    
+    return stock_data_list
 
 
 def StoreData():
-    page_soup = Scrape()  
-    
-    if page_soup:
-      
-        data_output = html_to_json.convert(str(page_soup))  
-        print(data_output)
-      
+   
+    data = Scrape()
+    if data:
         with open(stock_data, 'w') as json_file:
-            json_file.write(str(data_output)) 
-        print("ni data.")
+            json.dump(data, json_file, indent=4)
+        print("saved")
+    else:
+        print("no data")
 
-Scrape()  
-StoreData()  
+
+Scrape()
+StoreData()
