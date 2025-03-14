@@ -5,7 +5,6 @@ import json
 stock_data = 'resp.json'
 class Scraper:
 
-     
      def Scrape():
         url = "https://www.onefamily.com/help/fund-information/daily-prices/"
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101"
@@ -37,6 +36,10 @@ class Scraper:
                         "last_updated": last_updated
                     })
         return stock_data_list
+     
+     
+     
+
      
 
      def StoreData():
